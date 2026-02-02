@@ -110,8 +110,11 @@ const MissionPage = () => {
               >
                 {getCategoryLabel(mission.category)}
               </span>
-              <span className="text-sm text-muted-foreground">미션 {mission.id}</span>
+              <span className="text-sm text-muted-foreground">미션 {missionIndex + 1}/{missions.length}</span>
             </div>
+            {mission.context && (
+              <p className="text-sm text-muted-foreground mb-2 italic">💬 {mission.context}</p>
+            )}
             <CardTitle className="text-lg leading-relaxed">{mission.situation}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
