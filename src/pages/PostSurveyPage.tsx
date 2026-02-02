@@ -76,7 +76,15 @@ const PostSurveyPage = () => {
       {/* Question Card */}
       <div className="flex-1 flex items-center justify-center">
         <Card className="w-full max-w-md border-border/50 bg-card/80 backdrop-blur animate-fade-in">
-          <CardHeader>
+          <CardHeader className="pb-4">
+            <div className="flex justify-center mb-3">
+              <span className={`text-xs font-medium px-3 py-1 rounded-full bg-secondary text-${currentQuestion.category}`}>
+                {currentQuestion.category === 'privacy' && '개인정보'}
+                {currentQuestion.category === 'fairness' && '공정성'}
+                {currentQuestion.category === 'transparency' && '투명성'}
+                {currentQuestion.category === 'responsibility' && '책임'}
+              </span>
+            </div>
             <CardTitle className="text-xl text-center leading-relaxed">
               {currentQuestion.question}
             </CardTitle>
