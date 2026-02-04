@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { useSession } from '@/hooks/useSession';
 import { missions, competencyMissions } from '@/data/missions';
 import { surveyQuestions } from '@/data/surveyQuestions';
+import { competencyDescriptions } from '@/data/competencyDescriptions';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, Scale, Eye, Heart, ArrowUp, ArrowDown, Minus, Trophy, RefreshCw } from 'lucide-react';
+import { Shield, Scale, Eye, Heart, ArrowUp, ArrowDown, Minus, Trophy, RefreshCw, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const ResultPage = () => {
   const navigate = useNavigate();
@@ -15,6 +17,8 @@ const ResultPage = () => {
   const [pledgeInput, setPledgeInput] = useState(pledge);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [expandedCompetency, setExpandedCompetency] = useState<string | null>(null);
+  const [showSurveyDetails, setShowSurveyDetails] = useState(false);
 
   // Calculate competency scores
   const calculateCompetencyScore = (category: keyof typeof competencyMissions) => {
@@ -81,38 +85,93 @@ const ResultPage = () => {
     navigate('/');
   };
 
+  const getScoreTip = (category: string, percentage: number) => {
+    const desc = competencyDescriptions[category];
+    if (!desc) return '';
+    return percentage >= 70 ? desc.highScoreTip : desc.lowScoreTip;
+  };
+
   const CompetencyBar = ({
+    category,
     label,
     icon: Icon,
     data,
     colorClass,
   }: {
+    category: string;
     label: string;
     icon: React.ElementType;
     data: { score: number; max: number; percentage: number };
     colorClass: string;
-  }) => (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Icon className={`w-5 h-5 ${colorClass}`} />
-          <span className="font-medium">{label}</span>
+  }) => {
+    const isExpanded = expandedCompetency === category;
+    const desc = competencyDescriptions[category];
+
+    return (
+      <Collapsible 
+        open={isExpanded} 
+        onOpenChange={(open) => setExpandedCompetency(open ? category : null)}
+      >
+        <div className="space-y-2">
+          <CollapsibleTrigger className="w-full">
+            <div className="flex items-center justify-between cursor-pointer hover:bg-secondary/30 rounded-lg p-2 -m-2 transition-colors">
+              <div className="flex items-center gap-2">
+                <Icon className={`w-5 h-5 ${colorClass}`} />
+                <span className="font-medium">{label}</span>
+                {isExpanded ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                )}
+              </div>
+              <span className={`font-bold ${colorClass}`}>
+                {data.score}/{data.max}
+              </span>
+            </div>
+          </CollapsibleTrigger>
+          
+          <div className="h-3 bg-secondary rounded-full overflow-hidden">
+            <div
+              className={`h-full transition-all duration-1000 ease-out rounded-full`}
+              style={{
+                width: `${data.percentage}%`,
+                background: `hsl(var(--${colorClass.replace('text-', '')}))`,
+              }}
+            />
+          </div>
+
+          <CollapsibleContent>
+            {desc && (
+              <div className="mt-3 p-4 bg-secondary/30 rounded-lg space-y-3 animate-fade-in">
+                <div className="flex items-start gap-2">
+                  <span className="text-2xl">{desc.emoji}</span>
+                  <div>
+                    <p className="font-medium text-foreground">{desc.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{desc.importance}</p>
+                  </div>
+                </div>
+                
+                <div className={`p-3 rounded-lg ${data.percentage >= 70 ? 'bg-success/10' : 'bg-warning/10'}`}>
+                  <p className={`text-sm font-medium ${data.percentage >= 70 ? 'text-success' : 'text-warning'}`}>
+                    💡 {getScoreTip(category, data.percentage)}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">실천 예시:</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    {desc.examples.map((ex, idx) => (
+                      <li key={idx}>• {ex}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </CollapsibleContent>
         </div>
-        <span className={`font-bold ${colorClass}`}>
-          {data.score}/{data.max}
-        </span>
-      </div>
-      <div className="h-3 bg-secondary rounded-full overflow-hidden">
-        <div
-          className={`h-full transition-all duration-1000 ease-out rounded-full`}
-          style={{
-            width: `${data.percentage}%`,
-            background: `hsl(var(--${colorClass.replace('text-', '')}))`,
-          }}
-        />
-      </div>
-    </div>
-  );
+      </Collapsible>
+    );
+  };
 
   return (
     <div className="min-h-screen p-6 pb-20 animate-fade-in">
@@ -133,28 +192,38 @@ const ResultPage = () => {
         {/* Competency Chart */}
         <Card className="border-border/50 bg-card/80 backdrop-blur">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">역량별 점수</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">역량별 점수</CardTitle>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Info className="w-3 h-3" />
+                <span>클릭하면 상세 설명</span>
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <CompetencyBar
+              category="privacy"
               label="개인정보 보호 (Privacy)"
               icon={Shield}
               data={competencies.privacy}
               colorClass="text-privacy"
             />
             <CompetencyBar
+              category="fairness"
               label="공정성 (Fairness)"
               icon={Scale}
               data={competencies.fairness}
               colorClass="text-fairness"
             />
             <CompetencyBar
+              category="transparency"
               label="투명성 (Transparency)"
               icon={Eye}
               data={competencies.transparency}
               colorClass="text-transparency"
             />
             <CompetencyBar
+              category="responsibility"
               label="책임감 (Responsibility)"
               icon={Heart}
               data={competencies.responsibility}
@@ -166,23 +235,66 @@ const ResultPage = () => {
         {/* Survey Change */}
         <Card className="border-border/50 bg-card/80 backdrop-blur">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg">사전 → 사후 변화</CardTitle>
+            <CollapsibleTrigger 
+              className="w-full"
+              onClick={() => setShowSurveyDetails(!showSurveyDetails)}
+            >
+              <div className="flex items-center justify-between cursor-pointer">
+                <CardTitle className="text-lg">사전 → 사후 변화</CardTitle>
+                {showSurveyDetails ? (
+                  <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                )}
+              </div>
+            </CollapsibleTrigger>
           </CardHeader>
           <CardContent className="space-y-3">
             {surveyQuestions.map((q, index) => {
               const change = getSurveyChange(index);
+              const pre = preSurveyAnswers[index];
+              const post = postSurveyAnswers[index];
+              const correct = q.correctAnswer ? 1 : 0;
+              
               return (
-                <div key={q.id} className="flex items-center gap-3 text-sm">
-                  {change === 'improved' && (
-                    <ArrowUp className="w-5 h-5 text-success flex-shrink-0" />
+                <div key={q.id} className="space-y-2">
+                  <div className="flex items-center gap-3 text-sm">
+                    {change === 'improved' && (
+                      <ArrowUp className="w-5 h-5 text-success flex-shrink-0" />
+                    )}
+                    {change === 'declined' && (
+                      <ArrowDown className="w-5 h-5 text-destructive flex-shrink-0" />
+                    )}
+                    {change === 'same' && (
+                      <Minus className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                    )}
+                    <span className="text-muted-foreground line-clamp-1">{q.question}</span>
+                  </div>
+                  
+                  {showSurveyDetails && (
+                    <div className="ml-8 p-3 bg-secondary/30 rounded-lg animate-fade-in">
+                      <div className="flex items-center gap-2 text-xs mb-2">
+                        <span className={pre === correct ? 'text-success' : 'text-destructive'}>
+                          사전: {pre === 1 ? 'O' : 'X'}
+                        </span>
+                        <span className="text-muted-foreground">→</span>
+                        <span className={post === correct ? 'text-success' : 'text-destructive'}>
+                          사후: {post === 1 ? 'O' : 'X'}
+                        </span>
+                        <span className="text-muted-foreground ml-1">
+                          (정답: {q.correctAnswer ? 'O' : 'X'})
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {q.explanation}
+                      </p>
+                      {change === 'improved' && (
+                        <p className="text-xs text-success font-medium mt-2">
+                          🎉 잘했어요! 미션을 통해 올바른 이해를 했네요!
+                        </p>
+                      )}
+                    </div>
                   )}
-                  {change === 'declined' && (
-                    <ArrowDown className="w-5 h-5 text-destructive flex-shrink-0" />
-                  )}
-                  {change === 'same' && (
-                    <Minus className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                  )}
-                  <span className="text-muted-foreground line-clamp-1">{q.question}</span>
                 </div>
               );
             })}
