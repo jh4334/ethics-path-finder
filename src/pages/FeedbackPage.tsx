@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSession } from '@/hooks/useSession';
 import { missions } from '@/data/missions';
-import { CheckCircle, AlertCircle, ArrowRight, Lightbulb } from 'lucide-react';
+import { CheckCircle, AlertCircle, ArrowRight, Lightbulb, Newspaper } from 'lucide-react';
 
 const FeedbackPage = () => {
   const navigate = useNavigate();
@@ -98,6 +98,21 @@ const FeedbackPage = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Real Case Card - 실제 사례 */}
+        {mission.realCase && (
+          <Card className="border-accent/30 bg-accent/5">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                <Newspaper className="w-5 h-5 text-accent mt-1 flex-shrink-0" />
+                <div>
+                  <h3 className="font-semibold text-accent mb-2">📰 알고 계셨나요?</h3>
+                  <p className="text-foreground/90 text-sm leading-relaxed">{mission.realCase}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Alternative Tip */}
         <div className="bg-secondary/30 rounded-lg p-4">
