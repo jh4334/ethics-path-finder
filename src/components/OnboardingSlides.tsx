@@ -67,7 +67,7 @@ const OnboardingSlides = ({ onComplete }: OnboardingSlidesProps) => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Background animated gradient */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           className={`absolute w-[500px] h-[500px] rounded-full bg-gradient-to-r ${currentSlideData.color} opacity-20 blur-3xl`}
           animate={{
