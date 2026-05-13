@@ -235,7 +235,8 @@ const ResultPage = () => {
         {/* Survey Change */}
         <Card className="border-border/50 bg-card/80 backdrop-blur">
           <CardHeader className="pb-2">
-            <CollapsibleTrigger 
+            <button
+              type="button"
               className="w-full"
               onClick={() => setShowSurveyDetails(!showSurveyDetails)}
             >
@@ -247,7 +248,7 @@ const ResultPage = () => {
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 )}
               </div>
-            </CollapsibleTrigger>
+            </button>
           </CardHeader>
           <CardContent className="space-y-3">
             {surveyQuestions.map((q, index) => {
