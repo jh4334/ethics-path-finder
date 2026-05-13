@@ -41,8 +41,8 @@ const FeedbackPage = () => {
 
   const getScoreLabel = (score: number) => {
     if (score === 2) return '최고의 선택!';
-    if (score === 1) return '괜찮은 선택';
-    return '아쉬운 선택';
+    if (score === 1) return '다시 생각해볼 선택';
+    return '위험한 선택';
   };
 
   return (
