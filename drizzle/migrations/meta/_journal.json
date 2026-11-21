@@ -8,6 +8,13 @@
       "when": 1795254179749,
       "tag": "0000_harden_session_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795259067640,
+      "tag": "0001_restrict_legacy_response_reads",
+      "breakpoints": true
     }
   ]
 }
