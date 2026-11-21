@@ -30,6 +30,28 @@ describe('student trial', () => {
     }
     expect(order[1]).not.toEqual(['A', 'B', 'C']);
   });
+  it('allows exactly one retry, only where a more trusted option exists', () => {
+    const play = (ids: string[]) => {
+      useTrial.getState().start('');
+      ids.forEach((id) => { useTrial.getState().choose(id); useTrial.getState().next(); });
+    };
+    play(['A', 'A', 'A', 'A', 'A', 'C']);
+    useTrial.getState().retry(1); // 이미 가장 믿음직한 선택이라 다시 고를 수 없다.
+    expect(useTrial.getState().stage).toBe('result');
+    useTrial.getState().retry(10);
+    expect(useTrial.getState()).toMatchObject({ stage: 'mission', index: 5 });
+    useTrial.getState().choose('A');
+    useTrial.getState().next();
+    expect(useTrial.getState().stage).toBe('result');
+    expect(trialGauges(useTrial.getState().before!).trust).toBe(8);
+    expect(trialGauges(useTrial.getState().answers).trust).toBe(10);
+    play(['C', 'C', 'C', 'C', 'C', 'C']);
+    useTrial.getState().retry(1);
+    useTrial.getState().choose('A');
+    useTrial.getState().next();
+    useTrial.getState().retry(4); // 기회는 한 번뿐이다.
+    expect(useTrial.getState().stage).toBe('result');
+  });
   it('keeps feedback separate, rejects duplicate selections, and clears answers on restart', () => {
     useTrial.getState().start(' 학생 ');
     expect(Object.keys(useTrial.getState().order)).toHaveLength(6);

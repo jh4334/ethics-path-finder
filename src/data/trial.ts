@@ -119,12 +119,19 @@ export function trialGauges(answers: TrialAnswers) {
 }
 
 export type TrialTypeKey = 'loved' | 'guardian' | 'fast' | 'sprout';
-export const trialTypes: Record<TrialTypeKey, { name: string; text: string }> = {
-  loved: { name: '모두가 좋아하는 반짝이', text: '믿을 수 있고 쓰기도 편해요. 최고의 팀장!' },
-  guardian: { name: '든든한 지킴이 반짝이', text: '조금 불편해도 친구들이 안심하고 써요. 지키면서도 편하게 만들 방법은 없었을까요?' },
-  fast: { name: '빠르지만 불안한 반짝이', text: '편하긴 한데 친구들이 걱정해요. 어디서 믿음을 잃었을까요?' },
-  sprout: { name: '다시 자라는 반짝이', text: '괜찮아요. 한 번 더 만들면 더 잘할 수 있어요.' },
+// talk: 체험 뒤 짝과 나눌 이야기. 선생님이 바로 토론으로 이어 갈 수 있게 유형마다 하나씩 둔다.
+export const trialTypes: Record<TrialTypeKey, { name: string; text: string; talk: string }> = {
+  loved: { name: '모두가 좋아하는 반짝이', text: '믿을 수 있고 쓰기도 편해요. 최고의 팀장!', talk: '여섯 번의 선택 중 가장 고민된 것은 무엇이었나요? 왜 그랬나요?' },
+  guardian: { name: '든든한 지킴이 반짝이', text: '조금 불편해도 친구들이 안심하고 써요. 지키면서도 편하게 만들 방법은 없었을까요?', talk: '안전하면서 편하기도 한 반짝이를 만들려면 어떤 방법이 있을까요?' },
+  fast: { name: '빠르지만 불안한 반짝이', text: '편하긴 한데 친구들이 걱정해요. 어디서 믿음을 잃었을까요?', talk: '어디를 고치면 친구들이 반짝이를 다시 믿을 수 있을까요?' },
+  sprout: { name: '다시 자라는 반짝이', text: '괜찮아요. 한 번 더 만들면 더 잘할 수 있어요.', talk: '가장 바꾸고 싶은 선택은 무엇인가요? 왜 그런가요?' },
 };
+
+// 더 믿음직한 보기가 남아 있는 미션만 "다시 고르기"를 권한다.
+export function canImprove(mission: TrialMission, answers: TrialAnswers) {
+  const picked = pickedOption(mission, answers);
+  return Boolean(picked) && mission.options.some((option) => option.trust > picked!.trust);
+}
 
 export function trialType(answers: TrialAnswers): TrialTypeKey {
   const { trust, ease } = trialGauges(answers);
