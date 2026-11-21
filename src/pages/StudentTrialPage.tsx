@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Banjjak } from '@/components/Banjjak';
+import { SceneArt } from '@/components/SceneArt';
 import { useTrial } from '@/hooks/useTrial';
 import { GAUGE_MAX, canImprove, pickedOption, trialCategories, trialGauges, trialMissions, trialType, trialTypes } from '@/data/trial';
 
@@ -159,6 +160,7 @@ export default function StudentTrialPage() {
               <div className="space-y-5 animate-fade-in">
                 <div className="border-y border-border py-5 space-y-4">
                   <p className="text-sm text-muted-foreground">나의 선택: {option.text}</p>
+                  <div className="rounded-lg bg-card"><SceneArt missionId={mission.id} optionId={option.id} className="mx-auto w-full max-w-xs" /></div>
                   <p className="text-xl font-semibold leading-relaxed">{option.outcome}</p>
                   <div className="flex flex-wrap gap-2">
                     <Delta label="믿음" value={option.trust} color="text-primary" />
