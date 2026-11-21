@@ -33,10 +33,7 @@ const PostSurveyPage = () => {
 
         // Update session completion time on last question
         if (currentQuestionIndex === surveyQuestions.length - 1) {
-          await supabase
-            .from('sessions')
-            .update({ completed_at: new Date().toISOString() })
-            .eq('id', sessionId);
+          await supabase.rpc('complete_session', { _session_id: sessionId });
         }
       }
 

@@ -184,7 +184,12 @@ const TeacherDashboard = () => {
         ];
       });
 
-      const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+      const escapeCell = (value: unknown) => {
+        let str = String(value ?? '');
+        if (/^[=+\-@\t\r]/.test(str)) str = `'${str}`;
+        return `"${str.replace(/"/g, '""')}"`;
+      };
+      const csv = [headers, ...rows].map((r) => r.map(escapeCell).join(',')).join('\n');
       const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');

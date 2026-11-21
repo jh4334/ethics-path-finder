@@ -171,7 +171,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      complete_session: { Args: { _session_id: string }; Returns: undefined }
+      is_open_session: { Args: { _session_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
